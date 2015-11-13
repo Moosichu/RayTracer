@@ -1,0 +1,54 @@
+ALT-X       Open command mini-buffer
+    Commands:
+        kill-rectangle, useful for removing doc api
+CTRL-G      Exit mini-buffer
+
+ALT-F        Load file in the current window.
+ALT-SHIFT-F  Loads file in the other window.
+
+CTRL-S        Save the file in the current window.
+ALT-M        Looks for and executes buid.bat
+
+ALT-B        Switch to buffer in current window.
+ALT-SHIFT-B  Switch to buffer in the other window.
+
+ALT-W        Switch window.
+
+ALT-C        Switch between .hpp and .cpp file
+ALT-SHIFT-C  Same as above but opens it in the other window
+
+CTRL-X        Kills a buffer (asks to save if modified
+
+CTRL-SPACE   Sets the mark.
+CTRL-TAB     Reindent the block
+CTRL-C       Copied the block
+CTRL-V       Pastes the block
+CTRL-W       Cuts the block
+
+CTRL-Z        Undo
+ALT-SHIFT-;  Go to previous marked location
+ALT-J        Jump to a function by name
+
+CTRL-F       Search
+   CTRL-F     Moves to next occurence
+   CTRL-R     Moves to previous occurence
+
+ALT-O        Query Replace
+ALT-L        Replace inside block
+
+ALT-[        Begin recording keyboard macro
+ALT-]        End recording keyboard macro
+ALT-'        Replay keyboard macro
+
+CTRL-LEFT    Move to start of word
+CTRL-RIGHT   Move to end of word
+CTRL-UP/DOWN Move more up and down
+
+TAB          Cycles throught completions for a word
+
+ALT-.        Reflow a comment
+
+ALT-N        Go to next error after a compile
+ALT-SHIFT-N  Go to a previous error after a compile
+
+ALT-G        Got line numer

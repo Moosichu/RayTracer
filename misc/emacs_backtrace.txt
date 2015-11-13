@@ -1,0 +1,12 @@
+
+Exception 0xc0000005 at this address:
+01189f92
+
+Backtrace:
+01151828
+
+Exception 0xc0000005 at this address:
+01189f92
+
+Backtrace:
+01151828

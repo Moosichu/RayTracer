@@ -1,0 +1,2 @@
+why win32_handmade.cpp if using 64bit compiler
+why free and dealloc everytime instead of using the same bitmapMemory
