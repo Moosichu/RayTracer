@@ -114,7 +114,29 @@ Color traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseD
     closestCollision.ambientFactor = {0, 0, 0};
     closestCollision.diffuseFactor = {0, 0, 0};
     closestCollision.specularFactor = {0, 0, 0};
-    return {0, 0, 0};
+
+    Color finalColor = closestCollision.ambientFactor;
+    if(recurseDepth > 0) {
+        Color diffuseComponent;
+        Color specularComponent;
+
+        //check to make sure any diffuse components actually have to be calculated
+        if (closestCollision.diffuseFactor.red |
+            closestCollision.diffuseFactor.green |
+            closestCollision.diffuseFactor.blue) {
+            //recursively calculate diffuse components and add to final color variable
+            
+        }
+
+        //check to make sure any specular components actually have to be calculated
+        if (closestCollision.specularFactor.red |
+            closestCollision.specularFactor.green |
+            closestCollision.specularFactor.blue) {
+            //recursively calculate specular component and add to final color variable
+        } 
+    }
+        
+    return finalColor;
 }
 
 void rayTracerMain(OffscreenBuffer backBuffer) {
