@@ -13,6 +13,7 @@ struct Color {
     uint8 red;
     uint8 green;
     uint8 blue;
+    uint8 alpha;
 };
 
 //TODO(Tom) work out how to make these consts!
@@ -48,6 +49,14 @@ struct Ray {
     Vector3D origin;
 };
 
+struct LightCollision {
+    Vector3D position;
+    Vector3D normal;
+    Color ambientFactor;
+    Color diffuseFactor;
+    Color specularFactor;
+};
+
 struct PointLight {
     Vector3D position;
 };
@@ -55,7 +64,7 @@ struct PointLight {
 struct Sphere {
     Vector3D position;
     Color ambientFactor;
-    Color diffFactor;
+    Color diffuseFactor; //need to find a way of storing spread factor, maybe in alpha?
     Color specularFactor;
     scalar radius;
 };
@@ -98,28 +107,35 @@ internal void renderWeirdGradient2(OffscreenBuffer buffer, int xOffset, int yOff
 
 }
 
-void traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseDepth) {
-
-
+Color traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseDepth) {
+    LightCollision closestCollision;
+    closestCollision.position = {600000.0, 60000.0, 60000.0};
+    closestCollision.normal = {0, 0, 0};
+    closestCollision.ambientFactor = {0, 0, 0};
+    closestCollision.diffuseFactor = {0, 0, 0};
+    closestCollision.specularFactor = {0, 0, 0};
+    return {0, 0, 0};
 }
 
 void rayTracerMain(OffscreenBuffer backBuffer) {
     Camera camera;
     camera.position = {0, 0, 0};
-    
+
     Screen screen;
     screen.width = backBuffer.width;
     screen.height = backBuffer.height;
     screen.pixelSize = 1.0;
     screen.position = {0, 0, 10.0};
     screen.normal = {0,0,-1.0};
-    
+
     Sphere sceneObjects[1];
     Sphere sphere0;
     sphere0.position = {0, 20, 70};
     sphere0.ambientFactor = {255, 255, 255};
 
     sceneObjects[0] = sphere0;
+
+    PointLight lights[1];
 
     for(int x = 0; x < screen.width; x++) {
         for(int y = 0; y < screen.height; y++) {
@@ -143,7 +159,8 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                 ray.direction = pixelLocation - camera.position;
                 ray.origin = camera.position;
             }
+            Color pixelColor = traceRay(ray, sceneObjects, lights, 0);
+            setPixel(backBuffer, x, y, pixelColor);
         }
     }
-    
 }
