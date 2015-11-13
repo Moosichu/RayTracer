@@ -3,4 +3,3 @@ misc/emacs-23.4
 *.exe
 *.obj
 bin
-raytracer
