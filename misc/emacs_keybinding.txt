@@ -23,7 +23,7 @@ CTRL-SPACE   Sets the mark.
 CTRL-TAB     Reindent the block
 CTRL-C       Copied the block
 CTRL-V       Pastes the block
-CTRL-W       Cuts the block
+CTRL-X       Cuts the block
 
 CTRL-Z        Undo
 ALT-SHIFT-;  Go to previous marked location
