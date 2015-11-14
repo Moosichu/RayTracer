@@ -38,6 +38,11 @@ struct Vector3D {
         return {factor * x, factor * y, factor * z};
     }
 
+    Vector3D normalise() {
+        scalar mag = magnitude();
+        return {x/mag, y/mag, z/mag};
+    }
+
     scalar dot(const Vector3D v) {
         return (x * v.x) + (y * v.y) + (z * v.z);
     }
@@ -155,7 +160,8 @@ Color traceRay(Ray ray,
         {
             Sphere sphere = sceneObjects[i];
 
-            Vector3D sphereToRayOrigin = sphere.position - ray.origin;
+            
+            Vector3D sphereToRayOrigin = ray.origin - sphere.position;
             scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
             scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
             scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (sphere.radius*sphere.radius);
@@ -171,17 +177,15 @@ Color traceRay(Ray ray,
             double s1 = (-b + d)/(2*a);
             double s2 = (-b - d)/(2*a);
             double s = s1 < s2 ? s1 : s2; //select the closest point intersection
-            if(s < 0) {
-                //TODO: Work out why this bit won't work!
-                //(Basically, do the maths!!!!!) (Why is it negative?)
-                //continue;
+            if(s < 0) { //ignore collisions in negative ray direction!
+                continue;
             }
             
-            //Work out the position of the collision relateve to the camera's location
+            //Work out the position of the collision relative to the camera's location
             Vector3D collisionOffset = ray.direction * s;
             if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
                 closestCollision.position = collisionOffset;
-                //TODO(Tom) Calculate the normal of the collision!
+                closestCollision.normal = ((sphere.position - collisionOffset) - ray.origin).normalise();
                 closestCollision.ambientFactor = sphere.ambientFactor;
                 closestCollision.diffuseFactor = sphere.diffuseFactor;
                 closestCollision.specularFactor = sphere.specularFactor;
@@ -235,8 +239,8 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     Sphere sphere0;
     sphere0.position = {300.0, 0, 0};
     sphere0.radius = 50.0;
-    sphere0.ambientFactor = {255, 255, 255};
-    sphere0.diffuseFactor = {0, 0, 0};
+    sphere0.ambientFactor = {100,50,10};
+    sphere0.diffuseFactor = {100, 200, 250};
     sphere0.specularFactor = {0, 0, 0};
 
     sceneObjects[0] = sphere0;
