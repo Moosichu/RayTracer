@@ -1,5 +1,7 @@
 #include <cstddef>
 #include <cmath>
+#include <stdio.h>
+#include <stdarg.h>
 
 struct OffscreenBuffer {
     BITMAPINFO info;
@@ -53,7 +55,8 @@ struct Vector3D {
 struct Screen {
     int width;
     int height;
-    scalar pixelSize;
+    scalar pixelWidth;
+    scalar pixelHeight;
     Vector3D position;
     Vector3D normal;
 };
@@ -121,19 +124,33 @@ internal void renderWeirdGradient2(OffscreenBuffer buffer, int xOffset, int yOff
 
 }
 
+void DEBUG(const char* szFormat, ...) {
+    char szBuff[1024];
+    va_list arg;
+    va_start(arg, szFormat);
+    _vsnprintf(szBuff, sizeof(szBuff), szFormat, arg);
+    va_end(arg);
+
+    OutputDebugString(szBuff);
+
+}
+
 Color traceRay(Ray ray,
                Sphere sceneObjects[], std::size_t numObjects,
                PointLight lights[], std::size_t numLights,
                int recurseDepth) {
+    
     LightCollision closestCollision;
     closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
     closestCollision.normal = {1.0, 0, 0};
-    closestCollision.ambientFactor = {0, 0, 0};
+    closestCollision.ambientFactor = {255, 0, 0};
     closestCollision.diffuseFactor = {0, 0, 0};
     closestCollision.specularFactor = {0, 0, 0};
 
+    //DEBUG("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
+    
     //Find the closest position
-    for(std::size_t i = 0; i < numObjects; i++) {
+    for(std::size_t i = 0; i < 1; i++) { //TODO(Tom) working out why numobjects was 48
         //TODO(Tom) Have a way of handling type of sceneObject
         {
             Sphere sphere = sceneObjects[i];
@@ -155,7 +172,7 @@ Color traceRay(Ray ray,
             double s2 = (-b - d)/(2*a);
             double s = s1 < s2 ? s1 : s2; //select the closest point intersection
             if(s < 0) {
-                continue;
+                //continue;
             }
             
             //Work out the position of the collision relateve to the camera's location
@@ -196,20 +213,29 @@ Color traceRay(Ray ray,
 }
 
 void rayTracerMain(OffscreenBuffer backBuffer) {
+    renderWeirdGradient2(backBuffer, 0, 0);
+    
     Camera camera;
     camera.position = {0, 0, 0};
 
+    scalar screenAbsoluteHeight = 180.0;
+    scalar screenAbsoluteWidth = 320.0;
+    
     Screen screen;
     screen.width = backBuffer.width;
     screen.height = backBuffer.height;
-    screen.pixelSize = 1.0;
-    screen.position = {0, 0, 10.0};
-    screen.normal = {0,0,-1.0};
+    screen.pixelWidth = screenAbsoluteWidth / screen.width;
+    screen.pixelHeight = screenAbsoluteHeight / screen.height;
+    screen.position = {200.0, 0, 0};
+    screen.normal = {1.0, 0, 0};
 
     Sphere sceneObjects[1];
     Sphere sphere0;
-    sphere0.position = {0, 20, 70};
+    sphere0.position = {300.0, 0, 0};
+    sphere0.radius = 50.0;
     sphere0.ambientFactor = {255, 255, 255};
+    sphere0.diffuseFactor = {0, 0, 0};
+    sphere0.specularFactor = {0, 0, 0};
 
     sceneObjects[0] = sphere0;
 
@@ -224,9 +250,9 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                 //calculates the pixel's offset from the centre of the
                 //screen in the virtual space
                 Vector3D pixelOffset = {
-                    (x - ((double) screen.width/2)) * screen.pixelSize,
-                    (y - ((double) screen.height/2)) * screen.pixelSize,
-                    0
+                    0,
+                    (((double) screen.height/2) - y) * screen.pixelHeight,
+                    (x - ((double) screen.width/2)) * screen.pixelWidth
                 };
 
                 //calculate the screen's pixel location in the world!
@@ -237,12 +263,12 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                 ray.direction = pixelLocation - camera.position;
                 ray.origin = camera.position;
             }
-            Color pixelColor = traceRay(ray,
-                                        sceneObjects,
-                                        sizeof(sceneObjects),
-                                        lights,
-                                        sizeof(lights),
-                                        0);
+             Color pixelColor = traceRay(ray,
+                                      sceneObjects,
+                                      sizeof(sceneObjects),
+                                      lights,
+                                      sizeof(lights),
+                                      0);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
