@@ -18,6 +18,38 @@ struct Color {
     uint8 green;
     uint8 blue;
     uint8 alpha;
+    
+    Color add(Color c) {
+        Color r;
+        r.red = addChannels(red, c.red);
+        r.green = addChannels(green, c.green);
+        r.blue = addChannels(blue, c.blue);
+        return r;
+    }
+
+    Color mask(Color c) {
+        Color r;
+        r.red = (uint8) (((double) red * c.red)/255);
+        r.green = (uint8) (((double) green * c.green)/255);
+        r.blue = (uint8) (((double) blue * c.blue)/255);
+        return r;
+    }
+
+private:
+    static uint8 addChannels(uint8 c1, uint8 c2) {
+      if((c1 | c2) == 255) {
+            c1 = 255;
+        } else {
+            uint8 newC = c1 + c2;
+            if(newC < (c1 | c2)) {
+                //Have overflow, max out red!
+                c1 = 255;
+            } else {
+                c1 = newC;
+            }
+        }
+        return c1;
+    }
 };
 
 //TODO(Tom) work out how to make these consts!
@@ -146,16 +178,17 @@ Color traceRay(Ray ray,
                int recurseDepth) {
     
     LightCollision closestCollision;
+    //This position is relative to the Ray origin. TODO(Tom): change its name to reflect that and ask
     closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
     closestCollision.normal = {1.0, 0, 0};
-    closestCollision.ambientFactor = {255, 0, 0};
+    closestCollision.ambientFactor = {0, 0, 0};
     closestCollision.diffuseFactor = {0, 0, 0};
     closestCollision.specularFactor = {0, 0, 0};
 
     //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
     //Find the closest position
-    for(std::size_t i = 0; i < 1; i++) { //TODO(Tom) working out why numobjects was 48
+    for(std::size_t i = 0; i < 3; i++) { //TODO(Tom) working out why numobjects was 48
         //TODO(Tom) Have a way of handling type of sceneObject
         {
             Sphere sphere = sceneObjects[i];
@@ -211,7 +244,15 @@ Color traceRay(Ray ray,
         if (closestCollision.specularFactor.red |
             closestCollision.specularFactor.green |
             closestCollision.specularFactor.blue) {
-            //TODO(Tom) recursively calculate specular component and add to final color variable
+            Ray newRay;
+            newRay.origin = closestCollision.position + ray.origin;
+            newRay.direction = ((closestCollision.normal * 2 * closestCollision.normal.dot(ray.direction)) + ray.direction) * -1;
+            Color specularResult = traceRay(
+                newRay,
+                sceneObjects, numObjects,
+                lights, numLights,
+                recurseDepth - 1);
+            finalColor = finalColor.add(specularResult.mask(closestCollision.specularFactor));
         } 
     }
         
@@ -220,7 +261,9 @@ Color traceRay(Ray ray,
 
 void rayTracerMain(OffscreenBuffer backBuffer) {
     renderWeirdGradient2(backBuffer, 0, 0);
-    
+
+
+    //TODO(Tom): Allocate all this stuff onto the heap!
     Camera camera;
     camera.position = {0, 0, 0};
 
@@ -235,15 +278,31 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     screen.position = {200.0, 0, 0};
     screen.normal = {1.0, 0, 0};
 
-    Sphere sceneObjects[1];
+    Sphere sceneObjects[3];
+    
     Sphere sphere0;
     sphere0.position = {300.0, 0, 0};
     sphere0.radius = 50.0;
     sphere0.ambientFactor = {100,50,10};
     sphere0.diffuseFactor = {100, 200, 250};
-    sphere0.specularFactor = {0, 0, 0};
-
+    sphere0.specularFactor = {255, 255, 0};
     sceneObjects[0] = sphere0;
+
+    Sphere sphere1;
+    sphere1.position = {400.0, 50.0, 20.0};
+    sphere1.radius = 40.0;
+    sphere1.ambientFactor = {0, 100, 0};
+    sphere1.diffuseFactor = {255, 255, 255};
+    sphere1.specularFactor = {255, 0, 255};
+    sceneObjects[1] = sphere1;
+
+    Sphere sphere2;
+    sphere2.position = {220.0, -50.0, -20.0};
+    sphere2.radius = 30.0;
+    sphere2.ambientFactor = {10, 50, 100};
+    sphere2.diffuseFactor = {0, 0, 0};
+    sphere2.specularFactor = {255, 10, 130};
+    sceneObjects[2] = sphere2;
 
     PointLight lights[1];
 
@@ -255,6 +314,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
             {
                 //calculates the pixel's offset from the centre of the
                 //screen in the virtual space
+                //TODO(Tom) take the screen normal into account instead of hard coding all of this!
                 Vector3D pixelOffset = {
                     0,
                     (((double) screen.height/2) - y) * screen.pixelHeight,
@@ -271,10 +331,10 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
             }
              Color pixelColor = traceRay(ray,
                                       sceneObjects,
-                                      sizeof(sceneObjects),
+                                      sizeof(sceneObjects), //TODO(Tom) fix this giving the wrong value!
                                       lights,
                                       sizeof(lights),
-                                      0);
+                                      4);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
