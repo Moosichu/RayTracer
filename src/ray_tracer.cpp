@@ -124,7 +124,7 @@ internal void renderWeirdGradient2(OffscreenBuffer buffer, int xOffset, int yOff
 
 }
 
-void DEBUG(const char* szFormat, ...) {
+void debugPrint(const char* szFormat, ...) {
     char szBuff[1024];
     va_list arg;
     va_start(arg, szFormat);
@@ -147,7 +147,7 @@ Color traceRay(Ray ray,
     closestCollision.diffuseFactor = {0, 0, 0};
     closestCollision.specularFactor = {0, 0, 0};
 
-    //DEBUG("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
+    //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
     //Find the closest position
     for(std::size_t i = 0; i < 1; i++) { //TODO(Tom) working out why numobjects was 48
@@ -172,6 +172,8 @@ Color traceRay(Ray ray,
             double s2 = (-b - d)/(2*a);
             double s = s1 < s2 ? s1 : s2; //select the closest point intersection
             if(s < 0) {
+                //TODO: Work out why this bit won't work!
+                //(Basically, do the maths!!!!!) (Why is it negative?)
                 //continue;
             }
             
