@@ -1,3 +1,5 @@
+#include <cstddef>
+#include <cmath>
 
 struct OffscreenBuffer {
     BITMAPINFO info;
@@ -32,6 +34,18 @@ struct Vector3D {
 
     Vector3D operator*(const scalar factor) {
         return {factor * x, factor * y, factor * z};
+    }
+
+    scalar dot(const Vector3D v) {
+        return (x * v.x) + (y * v.y) + (z * v.z);
+    }
+
+    scalar square() {
+        return dot(*this);
+    }
+
+    scalar magnitude() {
+        return sqrt(square());
     }
 };
 
@@ -107,14 +121,56 @@ internal void renderWeirdGradient2(OffscreenBuffer buffer, int xOffset, int yOff
 
 }
 
-Color traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseDepth) {
+Color traceRay(Ray ray,
+               Sphere sceneObjects[], std::size_t numObjects,
+               PointLight lights[], std::size_t numLights,
+               int recurseDepth) {
     LightCollision closestCollision;
-    closestCollision.position = {600000.0, 60000.0, 60000.0};
-    closestCollision.normal = {0, 0, 0};
+    closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
+    closestCollision.normal = {1.0, 0, 0};
     closestCollision.ambientFactor = {0, 0, 0};
     closestCollision.diffuseFactor = {0, 0, 0};
     closestCollision.specularFactor = {0, 0, 0};
 
+    //Find the closest position
+    for(std::size_t i = 0; i < numObjects; i++) {
+        //TODO(Tom) Have a way of handling type of sceneObject
+        {
+            Sphere sphere = sceneObjects[i];
+
+            Vector3D sphereToRayOrigin = sphere.position - ray.origin;
+            scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
+            scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
+            scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (sphere.radius*sphere.radius);
+            scalar d;
+            {
+                double intermediate = (b*b) - (4*a*c);
+                if(intermediate < 0) {
+                    continue; //No intersection
+                }
+                d = sqrt(intermediate);
+            }
+
+            double s1 = (-b + d)/(2*a);
+            double s2 = (-b - d)/(2*a);
+            double s = s1 < s2 ? s1 : s2; //select the closest point intersection
+            if(s < 0) {
+                continue;
+            }
+            
+            //Work out the position of the collision relateve to the camera's location
+            Vector3D collisionOffset = ray.direction * s;
+            if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
+                closestCollision.position = collisionOffset;
+                //TODO(Tom) Calculate the normal of the collision!
+                closestCollision.ambientFactor = sphere.ambientFactor;
+                closestCollision.diffuseFactor = sphere.diffuseFactor;
+                closestCollision.specularFactor = sphere.specularFactor;
+            }
+        }
+    }
+
+    
     Color finalColor = closestCollision.ambientFactor;
     if(recurseDepth > 0) {
         Color diffuseComponent;
@@ -124,7 +180,7 @@ Color traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseD
         if (closestCollision.diffuseFactor.red |
             closestCollision.diffuseFactor.green |
             closestCollision.diffuseFactor.blue) {
-            //recursively calculate diffuse components and add to final color variable
+            //TODO(Tom) recursively calculate diffuse components and add to final color variable
             
         }
 
@@ -132,7 +188,7 @@ Color traceRay(Ray ray, Sphere sceneObjects[], PointLight lights[], int recurseD
         if (closestCollision.specularFactor.red |
             closestCollision.specularFactor.green |
             closestCollision.specularFactor.blue) {
-            //recursively calculate specular component and add to final color variable
+            //TODO(Tom) recursively calculate specular component and add to final color variable
         } 
     }
         
@@ -159,8 +215,8 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
 
     PointLight lights[1];
 
-    for(int x = 0; x < screen.width; x++) {
-        for(int y = 0; y < screen.height; y++) {
+    for(std::size_t x = 0; x < screen.width; x++) {
+        for(std::size_t y = 0; y < screen.height; y++) {
             Ray ray;
             //This block calculates the direction from the camera to
             //the position of the virtual pixel in the virtual screen
@@ -181,7 +237,12 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                 ray.direction = pixelLocation - camera.position;
                 ray.origin = camera.position;
             }
-            Color pixelColor = traceRay(ray, sceneObjects, lights, 0);
+            Color pixelColor = traceRay(ray,
+                                        sceneObjects,
+                                        sizeof(sceneObjects),
+                                        lights,
+                                        sizeof(lights),
+                                        0);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
