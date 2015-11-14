@@ -113,6 +113,7 @@ struct LightCollision {
 
 struct PointLight {
     Vector3D position;
+    Color color;
 };
 
 struct Sphere {
@@ -236,7 +237,19 @@ Color traceRay(Ray ray,
         if (closestCollision.diffuseFactor.red |
             closestCollision.diffuseFactor.green |
             closestCollision.diffuseFactor.blue) {
-            //TODO(Tom) recursively calculate diffuse components and add to final color variable
+            for(int i = 0; i < 1; i++) {
+                PointLight light = lights[i];
+                Ray newRay;
+                newRay.origin = closestCollision.position + ray.origin;
+                newRay.direction = light.position - newRay.origin;
+                //Color diffuseResult = traceRay(
+                //    newRay,
+                //    sceneObjects, numObjects,
+                //    lights, numLights,
+                //    0);
+                //TODO(Tom) Properly mask result and add it to final color AND make is so
+                //that you can set the default result of a raceTrayss
+            }
             
         }
 
@@ -305,6 +318,10 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sceneObjects[2] = sphere2;
 
     PointLight lights[1];
+    PointLight light0;
+    light0.position = {0.0, 255.0, 255.0};
+    light0.color = {255, 255, 255};
+    lights[0] = light0;
 
     for(std::size_t x = 0; x < screen.width; x++) {
         for(std::size_t y = 0; y < screen.height; y++) {
