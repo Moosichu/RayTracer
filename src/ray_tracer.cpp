@@ -197,7 +197,7 @@ Color traceRay(Ray ray,
     //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
     //Find the closest position
-    for(std::size_t i = 0; i < 3; i++) { //TODO(Tom) working out why numobjects was 48
+    for(std::size_t i = 0; i < numObjects; i++) { //TODO(Tom) working out why numobjects was 48
         //TODO(Tom) Have a way of handling type of sceneObject
         {
             Sphere sphere = sceneObjects[i];
@@ -245,7 +245,7 @@ Color traceRay(Ray ray,
         if (closestCollision.diffuseFactor.red |
             closestCollision.diffuseFactor.green |
             closestCollision.diffuseFactor.blue) {
-            for(int i = 0; i < 2; i++) {
+            for(int i = 0; i < numLights; i++) {
                 PointLight light = lights[i];
                 Ray newRay;
                 newRay.origin = closestCollision.position + ray.origin;
@@ -379,9 +379,9 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
             }
              Color pixelColor = traceRay(ray,
                                       sceneObjects,
-                                      sizeof(sceneObjects), //TODO(Tom) fix this giving the wrong value!
+                                      sizeof(sceneObjects)/sizeof(sceneObjects[0]),
                                       lights,
-                                      sizeof(lights),
+                                      sizeof(lights)/sizeof(lights[0]),
                                       4);
             setPixel(backBuffer, x, y, pixelColor);
         }
