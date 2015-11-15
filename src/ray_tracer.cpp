@@ -173,18 +173,26 @@ void debugPrint(const char* szFormat, ...) {
 
 }
 
+//TODO(Tom) Have ray return some other non-integer logarithmic light unit that is better
+//suited for these simulations.
 Color traceRay(Ray ray,
                Sphere sceneObjects[], std::size_t numObjects,
                PointLight lights[], std::size_t numLights,
-               int recurseDepth) {
-    
+               int recurseDepth,
+               LightCollision *const defaultClosestCollision = nullptr) {
+
     LightCollision closestCollision;
-    //This position is relative to the Ray origin. TODO(Tom): change its name to reflect that and ask
-    closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
-    closestCollision.normal = {1.0, 0, 0};
-    closestCollision.ambientFactor = {0, 0, 0};
-    closestCollision.diffuseFactor = {0, 0, 0};
-    closestCollision.specularFactor = {0, 0, 0};
+    if(defaultClosestCollision == nullptr) {
+        //This position is relative to the Ray origin. TODO(Tom): change its name to reflect that and ask
+        closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
+        //don't care about normal in this case as not used with no light factors
+        //TODO(Tom): add some safety
+        closestCollision.ambientFactor = {0, 0, 0};
+        closestCollision.diffuseFactor = {0, 0, 0};
+        closestCollision.specularFactor = {0, 0, 0};
+    } else {
+        closestCollision = *defaultClosestCollision;
+    }
 
     //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
@@ -242,13 +250,28 @@ Color traceRay(Ray ray,
                 Ray newRay;
                 newRay.origin = closestCollision.position + ray.origin;
                 newRay.direction = light.position - newRay.origin;
-                //Color diffuseResult = traceRay(
-                //    newRay,
-                //    sceneObjects, numObjects,
-                //    lights, numLights,
-                //    0);
-                //TODO(Tom) Properly mask result and add it to final color AND make is so
-                //that you can set the default result of a raceTrayss
+                LightCollision lightCollision;
+                lightCollision.position = light.position;
+                //Don't care about normal as lights don't reflect light
+                lightCollision.ambientFactor = light.color;
+                lightCollision.diffuseFactor = {0, 0, 0};
+                lightCollision.specularFactor = {0, 0, 0};
+                
+                Color diffuseResult = traceRay(
+                    newRay,
+                    sceneObjects, numObjects,
+                    lights, numLights,
+                    0,
+                    &lightCollision);
+
+                Vector3D normalRay = newRay.direction.normalise();
+                scalar diffusePower = closestCollision.normal.dot(normalRay);
+
+                Color totalDiffuse = diffuseResult.mask(closestCollision.diffuseFactor);
+                totalDiffuse.red = (uint8) (diffusePower * totalDiffuse.red);
+                totalDiffuse.green = (uint8) (diffusePower * totalDiffuse.green);
+                totalDiffuse.blue = (uint8) (diffusePower * totalDiffuse.blue);
+                finalColor = finalColor.add(totalDiffuse);
             }
             
         }
@@ -313,7 +336,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sphere2.position = {220.0, -50.0, -20.0};
     sphere2.radius = 30.0;
     sphere2.ambientFactor = {10, 50, 100};
-    sphere2.diffuseFactor = {0, 0, 0};
+    sphere2.diffuseFactor = {0, 150, 0};
     sphere2.specularFactor = {255, 10, 130};
     sceneObjects[2] = sphere2;
 
