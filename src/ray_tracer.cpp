@@ -256,7 +256,12 @@ Color traceRay(Ray ray,
                 lightCollision.ambientFactor = light.color;
                 lightCollision.diffuseFactor = {0, 0, 0};
                 lightCollision.specularFactor = {0, 0, 0};
-                
+
+
+                Vector3D normalRay = newRay.direction.normalise();
+                scalar diffusePower = -closestCollision.normal.dot(normalRay);
+                if(diffusePower < 0) break;
+
                 Color diffuseResult = traceRay(
                     newRay,
                     sceneObjects, numObjects,
@@ -264,8 +269,6 @@ Color traceRay(Ray ray,
                     0,
                     &lightCollision);
 
-                Vector3D normalRay = newRay.direction.normalise();
-                scalar diffusePower = closestCollision.normal.dot(normalRay);
 
                 Color totalDiffuse = diffuseResult.mask(closestCollision.diffuseFactor);
                 totalDiffuse.red = (uint8) (diffusePower * totalDiffuse.red);
