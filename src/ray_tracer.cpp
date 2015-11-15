@@ -316,7 +316,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     screen.position = {200.0, 0, 0};
     screen.normal = {1.0, 0, 0};
 
-    Sphere sceneObjects[3];
+    Sphere spheres[3];
     
     Sphere sphere0;
     sphere0.position = {300.0, 0, 0};
@@ -324,7 +324,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sphere0.ambientFactor = {10,50,10};
     sphere0.diffuseFactor = {50, 50, 50};
     sphere0.specularFactor = {200, 200, 200};
-    sceneObjects[0] = sphere0;
+    spheres[0] = sphere0;
 
     Sphere sphere1;
     sphere1.position = {400.0, 50.0, 20.0};
@@ -332,7 +332,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sphere1.ambientFactor = {0, 0, 0};
     sphere1.diffuseFactor = {50, 50, 50};
     sphere1.specularFactor = {100, 100, 100};
-    sceneObjects[1] = sphere1;
+    spheres[1] = sphere1;
 
     Sphere sphere2;
     sphere2.position = {220.0, -50.0, -20.0};
@@ -340,7 +340,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sphere2.ambientFactor = {10, 50, 100};
     sphere2.diffuseFactor = {50, 50, 50};
     sphere2.specularFactor = {100, 100, 130};
-    sceneObjects[2] = sphere2;
+    spheres[2] = sphere2;
 
     PointLight lights[2];
     PointLight light0;
@@ -377,8 +377,8 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                 ray.origin = camera.position;
             }
              Color pixelColor = traceRay(ray,
-                                      sceneObjects,
-                                      sizeof(sceneObjects)/sizeof(sceneObjects[0]),
+                                      spheres,
+                                      sizeof(spheres)/sizeof(spheres[0]),
                                       lights,
                                       sizeof(lights)/sizeof(lights[0]),
                                       4);
