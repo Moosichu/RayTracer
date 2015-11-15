@@ -141,27 +141,6 @@ static void setPixel(OffscreenBuffer buffer, int x, int y, Color color) {
     *pixel = ((color.red << 16) | (color.green << 8) | color.blue);
 }
 
-
-internal void renderWeirdGradient2(OffscreenBuffer buffer, int xOffset, int yOffset) {
-    for(int y = 0; y < buffer.height; y++) {
-        for(int x = 0; x < buffer.width; x++) {
-            /*
-              Pixel  in  memory: BB GG RR xx
-
-              Pixel in register: xx RR GG BB
-
-              ^^Due to LITTLE ENDIAN architecture
-             */
-            Color color;
-            color.blue = (x + xOffset);
-            color.green = (y + yOffset);
-            color.red = (color.blue + color.green)*3;
-            setPixel(buffer, x, y, color);
-        }
-    }
-
-}
-
 void debugPrint(const char* szFormat, ...) {
     char szBuff[1024];
     va_list arg;
@@ -298,9 +277,6 @@ Color traceRay(Ray ray,
 }
 
 void rayTracerMain(OffscreenBuffer backBuffer) {
-    renderWeirdGradient2(backBuffer, 0, 0);
-
-
     //TODO(Tom): Allocate all this stuff onto the heap!
     Camera camera;
     camera.position = {0, 0, 0};
