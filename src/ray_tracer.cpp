@@ -245,7 +245,7 @@ Color traceRay(Ray ray,
         if (closestCollision.diffuseFactor.red |
             closestCollision.diffuseFactor.green |
             closestCollision.diffuseFactor.blue) {
-            for(int i = 0; i < 1; i++) {
+            for(int i = 0; i < 2; i++) {
                 PointLight light = lights[i];
                 Ray newRay;
                 newRay.origin = closestCollision.position + ray.origin;
@@ -260,7 +260,7 @@ Color traceRay(Ray ray,
 
                 Vector3D normalRay = newRay.direction.normalise();
                 scalar diffusePower = -closestCollision.normal.dot(normalRay);
-                if(diffusePower < 0) break;
+                if(diffusePower < 0) break; //throw away rays which go inside the object
 
                 Color diffuseResult = traceRay(
                     newRay,
@@ -322,32 +322,37 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     Sphere sphere0;
     sphere0.position = {300.0, 0, 0};
     sphere0.radius = 50.0;
-    sphere0.ambientFactor = {100,50,10};
-    sphere0.diffuseFactor = {100, 200, 250};
-    sphere0.specularFactor = {255, 255, 0};
+    sphere0.ambientFactor = {10,50,10};
+    sphere0.diffuseFactor = {50, 50, 50};
+    sphere0.specularFactor = {200, 200, 200};
     sceneObjects[0] = sphere0;
 
     Sphere sphere1;
     sphere1.position = {400.0, 50.0, 20.0};
     sphere1.radius = 40.0;
-    sphere1.ambientFactor = {0, 100, 0};
-    sphere1.diffuseFactor = {255, 255, 255};
-    sphere1.specularFactor = {255, 0, 255};
+    sphere1.ambientFactor = {10, 20, 0};
+    sphere1.diffuseFactor = {50, 50, 50};
+    sphere1.specularFactor = {100, 100, 100};
     sceneObjects[1] = sphere1;
 
     Sphere sphere2;
     sphere2.position = {220.0, -50.0, -20.0};
     sphere2.radius = 30.0;
     sphere2.ambientFactor = {10, 50, 100};
-    sphere2.diffuseFactor = {0, 150, 0};
-    sphere2.specularFactor = {255, 10, 130};
+    sphere2.diffuseFactor = {50, 50, 50};
+    sphere2.specularFactor = {100, 100, 130};
     sceneObjects[2] = sphere2;
 
-    PointLight lights[1];
+    PointLight lights[2];
     PointLight light0;
     light0.position = {0.0, 255.0, 255.0};
     light0.color = {255, 255, 255};
     lights[0] = light0;
+
+    PointLight light1;
+    light1.position = {400, 20, -50};
+    light1.color = {255, 255, 255};
+    lights[1] = light1;
 
     for(std::size_t x = 0; x < screen.width; x++) {
         for(std::size_t y = 0; y < screen.height; y++) {
