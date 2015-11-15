@@ -176,7 +176,7 @@ void debugPrint(const char* szFormat, ...) {
 //TODO(Tom) Have ray return some other non-integer logarithmic light unit that is better
 //suited for these simulations.
 Color traceRay(Ray ray,
-               Sphere sceneObjects[], std::size_t numObjects,
+               Sphere spheres[], std::size_t numSpheres,
                PointLight lights[], std::size_t numLights,
                int recurseDepth,
                LightCollision *const defaultClosestCollision = nullptr) {
@@ -197,42 +197,41 @@ Color traceRay(Ray ray,
     //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
     //Find the closest position
-    for(std::size_t i = 0; i < numObjects; i++) { //TODO(Tom) working out why numobjects was 48
+    for(std::size_t i = 0; i < numSpheres; i++) { //TODO(Tom) working out why numobjects was 48
         //TODO(Tom) Have a way of handling type of sceneObject
+        Sphere& sphere = spheres[i];
+
+            
+        Vector3D sphereToRayOrigin = ray.origin - sphere.position;
+        scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
+        scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
+        scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (sphere.radius*sphere.radius);
+        scalar d;
         {
-            Sphere sphere = sceneObjects[i];
-
-            
-            Vector3D sphereToRayOrigin = ray.origin - sphere.position;
-            scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
-            scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
-            scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (sphere.radius*sphere.radius);
-            scalar d;
-            {
-                double intermediate = (b*b) - (4*a*c);
-                if(intermediate < 0) {
-                    continue; //No intersection
-                }
-                d = sqrt(intermediate);
+            double intermediate = (b*b) - (4*a*c);
+            if(intermediate < 0) {
+                continue; //No intersection
             }
-
-            double s1 = (-b + d)/(2*a);
-            double s2 = (-b - d)/(2*a);
-            double s = s1 < s2 ? s1 : s2; //select the closest point intersection
-            if(s < 0) { //ignore collisions in negative ray direction!
-                continue;
-            }
-            
-            //Work out the position of the collision relative to the camera's location
-            Vector3D collisionOffset = ray.direction * s;
-            if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
-                closestCollision.position = collisionOffset;
-                closestCollision.normal = ((sphere.position - collisionOffset) - ray.origin).normalise();
-                closestCollision.ambientFactor = sphere.ambientFactor;
-                closestCollision.diffuseFactor = sphere.diffuseFactor;
-                closestCollision.specularFactor = sphere.specularFactor;
-            }
+            d = sqrt(intermediate);
         }
+
+        double s1 = (-b + d)/(2*a);
+        double s2 = (-b - d)/(2*a);
+        double s = s1 < s2 ? s1 : s2; //select the closest point intersection
+        if(s < 0) { //ignore collisions in negative ray direction!
+            continue;
+        }
+            
+        //Work out the position of the collision relative to the camera's location
+        Vector3D collisionOffset = ray.direction * s;
+        if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
+            closestCollision.position = collisionOffset;
+            closestCollision.normal = ((sphere.position - collisionOffset) - ray.origin).normalise();
+            closestCollision.ambientFactor = sphere.ambientFactor;
+            closestCollision.diffuseFactor = sphere.diffuseFactor;
+            closestCollision.specularFactor = sphere.specularFactor;
+        }
+        
     }
 
     
@@ -264,7 +263,7 @@ Color traceRay(Ray ray,
 
                 Color diffuseResult = traceRay(
                     newRay,
-                    sceneObjects, numObjects,
+                    spheres, numSpheres,
                     lights, numLights,
                     0,
                     &lightCollision);
@@ -288,7 +287,7 @@ Color traceRay(Ray ray,
             newRay.direction = ((closestCollision.normal * 2 * closestCollision.normal.dot(ray.direction)) + ray.direction) * -1;
             Color specularResult = traceRay(
                 newRay,
-                sceneObjects, numObjects,
+                spheres, numSpheres,
                 lights, numLights,
                 recurseDepth - 1);
             finalColor = finalColor.add(specularResult.mask(closestCollision.specularFactor));
@@ -330,7 +329,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     Sphere sphere1;
     sphere1.position = {400.0, 50.0, 20.0};
     sphere1.radius = 40.0;
-    sphere1.ambientFactor = {10, 20, 0};
+    sphere1.ambientFactor = {0, 0, 0};
     sphere1.diffuseFactor = {50, 50, 50};
     sphere1.specularFactor = {100, 100, 100};
     sceneObjects[1] = sphere1;
