@@ -89,13 +89,38 @@ struct Vector3D {
 };
 
 
-struct Screen {
-    int width;
-    int height;
-    scalar pixelWidth;
-    scalar pixelHeight;
-    Vector3D position;
-    Vector3D normal;
+struct Vector2D {
+    scalar x;
+    scalar y;
+
+    Vector2D operator+(const Vector2D v) {
+        return {x + v.x, y + v.y};
+    }
+
+    Vector2D operator-(const Vector2D v) {
+        return {x - v.x, y - v.y};
+    }
+
+    Vector2D operator*(const scalar factor) {
+        return {factor * x, factor * y};
+    }
+
+    Vector2D normalise() {
+        scalar mag = magnitude();
+        return {x/mag, y/mag};
+    }
+
+    scalar dot(const Vector2D v) {
+        return (x * v.x) + (y * v.y);
+    }
+
+    scalar square() {
+        return dot(*this);
+    }
+
+    scalar magnitude() {
+        return sqrt(square());
+    }
 };
 
 struct Ray {
@@ -128,7 +153,15 @@ struct Camera {
     Vector3D position;
 };
 
-
+struct Screen {
+    int width;
+    int height;
+    scalar pixelWidth;
+    scalar pixelHeight;
+    Vector3D position;
+    Vector3D yDirection;
+    Vector3D xDirection;
+};
 
 /*
  * Set the pixel in the buffer to the given colour!
@@ -290,7 +323,8 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     screen.pixelWidth = screenAbsoluteWidth / screen.width;
     screen.pixelHeight = screenAbsoluteHeight / screen.height;
     screen.position = {200.0, 0, 0};
-    screen.normal = {1.0, 0, 0};
+    screen.yDirection = {0, 1, 0};
+    screen.xDirection = {0, 0, 1};
 
     Sphere spheres[3];
     
@@ -337,12 +371,9 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
             {
                 //calculates the pixel's offset from the centre of the
                 //screen in the virtual space
-                //TODO(Tom) take the screen normal into account instead of hard coding all of this!
-                Vector3D pixelOffset = {
-                    0,
-                    (((double) screen.height/2) - y) * screen.pixelHeight,
-                    (x - ((double) screen.width/2)) * screen.pixelWidth
-                };
+                Vector3D pixelOffset =
+                    (screen.yDirection * (((double) screen.height/2) - y) * screen.pixelHeight) +
+                    (screen.xDirection * (x - ((double) screen.width/2)) * screen.pixelWidth);
 
                 //calculate the screen's pixel location in the world!
                 //TODO(Tom) take the screen normal into account!
