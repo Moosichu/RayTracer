@@ -9,6 +9,6 @@ Screens
 
 Spheres:
 --------
-![alt tag](https://raw.githubusercontent.com/Moosichu/RayTracer/master/screens/spheres01.png)
+![alt tag](https://raw.githubusercontent.com/Moosichu/RayTracer/master/screens/spheres03.png)
 
-![alt tag](https://raw.githubusercontent.com/Moosichu/RayTracer/master/screens/spheres02.png)
+![alt tag](https://raw.githubusercontent.com/Moosichu/RayTracer/master/screens/spheres01.png)
