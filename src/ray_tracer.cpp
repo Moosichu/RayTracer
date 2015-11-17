@@ -149,6 +149,13 @@ struct Sphere {
     scalar radius;
 };
 
+struct Plane {
+    Vector3D position;
+    Color ambientFactor;
+    Color diffuseFactor;
+    Color specularFactor;
+};
+
 struct Camera {
     Vector3D position;
 };
@@ -189,6 +196,7 @@ void debugPrint(const char* szFormat, ...) {
 //suited for these simulations.
 Color traceRay(Ray ray,
                Sphere spheres[], std::size_t numSpheres,
+               Plane planes[], std::size_t numPlanes,
                PointLight lights[], std::size_t numLights,
                int recurseDepth,
                LightCollision *const defaultClosestCollision = nullptr) {
@@ -209,6 +217,8 @@ Color traceRay(Ray ray,
     //debugPrint("X : %f, Y : %f, Z : % f \n", ray.direction.x, ray.direction.y, ray.direction.z);
     
     //Find the closest position
+
+    //1.Check the spheres
     for(std::size_t i = 0; i < numSpheres; i++) { //TODO(Tom) working out why numobjects was 48
         //TODO(Tom) Have a way of handling type of sceneObject
         Sphere& sphere = spheres[i];
@@ -243,7 +253,25 @@ Color traceRay(Ray ray,
             closestCollision.diffuseFactor = sphere.diffuseFactor;
             closestCollision.specularFactor = sphere.specularFactor;
         }
-        
+    }
+
+    //2.Check the planes
+    for(std::size_t i = 0; i < numPlanes; i++) {
+        Plane &plane = planes[i];
+        Vector3D pDashed = plane.position - ray.origin;
+        scalar scalingFactor = pDashed.dot(pDashed)/ray.direction.dot(pDashed);
+        if(scalingFactor < 0) {
+            continue;
+        }
+        Vector3D collisionOffset = ray.direction * scalingFactor;
+        if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
+            closestCollision.position = collisionOffset;
+            closestCollision.normal = {0,0,0};
+            closestCollision.normal = (closestCollision.normal - plane.position).normalise();
+            closestCollision.ambientFactor = plane.ambientFactor;
+            closestCollision.diffuseFactor = plane.diffuseFactor;
+            closestCollision.specularFactor = plane.specularFactor;
+        }
     }
 
     
@@ -276,6 +304,7 @@ Color traceRay(Ray ray,
                 Color diffuseResult = traceRay(
                     newRay,
                     spheres, numSpheres,
+                    planes, numPlanes,
                     lights, numLights,
                     0,
                     &lightCollision);
@@ -300,6 +329,7 @@ Color traceRay(Ray ray,
             Color specularResult = traceRay(
                 newRay,
                 spheres, numSpheres,
+                planes, numPlanes,
                 lights, numLights,
                 recurseDepth - 1);
             finalColor = finalColor.add(specularResult.mask(closestCollision.specularFactor));
@@ -323,7 +353,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     screen.pixelWidth = screenAbsoluteWidth / screen.width;
     screen.pixelHeight = screenAbsoluteHeight / screen.height;
     screen.position = {200.0, 0, 0};
-    screen.yDirection = {0, 1, 0};
+    screen.yDirection = {0, 1, 0}; //TODO(Tom) Encode Pixel width and height in here in a neat way
     screen.xDirection = {0, 0, 1};
 
     Sphere spheres[3];
@@ -352,6 +382,16 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     sphere2.specularFactor = {100, 100, 130};
     spheres[2] = sphere2;
 
+    //TODO(Tom): add planes here.
+    Plane planes[1];
+
+    Plane plane0;
+    plane0.position = {0, -100, 0};
+    plane0.ambientFactor = {20, 20, 20};
+    plane0.diffuseFactor = {50, 50, 50};
+    plane0.specularFactor = {150, 150, 150};
+    planes[0] = plane0;
+    
     PointLight lights[2];
     PointLight light0;
     light0.position = {0.0, 255.0, 255.0};
@@ -386,9 +426,11 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
              Color pixelColor = traceRay(ray,
                                       spheres,
                                       sizeof(spheres)/sizeof(spheres[0]),
+                                      planes,
+                                      sizeof(planes)/sizeof(planes[0]),
                                       lights,
                                       sizeof(lights)/sizeof(lights[0]),
-                                      4);
+                                      1);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
