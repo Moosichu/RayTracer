@@ -436,7 +436,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                                       sizeof(planes)/sizeof(planes[0]),
                                       lights,
                                       sizeof(lights)/sizeof(lights[0]),
-                                      2);
+                                      1);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
