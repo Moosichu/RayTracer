@@ -147,6 +147,38 @@ struct Sphere {
     Color diffuseFactor; //need to find a way of storing spread factor, maybe in alpha?
     Color specularFactor;
     scalar radius;
+
+    void calculateCollision(Ray ray, LightCollision *closestCollision) {      
+        Vector3D sphereToRayOrigin = ray.origin - position;
+        scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
+        scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
+        scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (radius*radius);
+        scalar d;
+        {
+            double intermediate = (b*b) - (4*a*c);
+            if(intermediate < 0) {
+                return; //No intersection
+            }
+            d = sqrt(intermediate);
+        }
+
+        double s1 = (-b + d)/(2*a);
+        double s2 = (-b - d)/(2*a);
+        double s = s1 < s2 ? s1 : s2; //select the closest point intersection
+        if(s < 0) { //ignore collisions in negative ray direction!
+            return;
+        }
+            
+        //Work out the position of the collision relative to the camera's location
+        Vector3D collisionOffset = ray.direction * s;
+        if(collisionOffset.square() < closestCollision->position.square()) { //Comparing magnitudes
+            closestCollision->position = collisionOffset;
+            closestCollision->normal = ((position - collisionOffset) - ray.origin).normalise();
+            closestCollision->ambientFactor = ambientFactor;
+            closestCollision->diffuseFactor = diffuseFactor;
+            closestCollision->specularFactor = specularFactor;
+        }
+    }
 };
 
 struct Plane {
@@ -154,6 +186,24 @@ struct Plane {
     Color ambientFactor;
     Color diffuseFactor;
     Color specularFactor;
+
+    void calculateCollision(Ray ray, LightCollision *closestCollision) {
+        Vector3D pDashed = position - ray.origin;
+        scalar scalingFactor = pDashed.dot(pDashed)/ray.direction.dot(pDashed);
+        if(scalingFactor < 0) {
+            return;
+        }
+        Vector3D collisionOffset = ray.direction * scalingFactor;
+        if(collisionOffset.square() < closestCollision->position.square()) { //Comparing magnitudes
+            closestCollision->position = collisionOffset;
+            closestCollision->normal = {0,0,0};
+            closestCollision->normal = (closestCollision->normal - position).normalise();
+            closestCollision->ambientFactor = ambientFactor;
+            closestCollision->diffuseFactor = diffuseFactor;
+            closestCollision->specularFactor = specularFactor;
+        }
+        return;
+    }
 };
 
 struct Camera {
@@ -220,58 +270,13 @@ Color traceRay(Ray ray,
 
     //1.Check the spheres
     for(std::size_t i = 0; i < numSpheres; i++) { //TODO(Tom) working out why numobjects was 48
-        //TODO(Tom) Have a way of handling type of sceneObject
-        Sphere& sphere = spheres[i];
-
-            
-        Vector3D sphereToRayOrigin = ray.origin - sphere.position;
-        scalar a = ray.direction.dot(ray.direction); //a = |ray.direction|^2
-        scalar b = 2 * ray.direction.dot(sphereToRayOrigin);
-        scalar c = sphereToRayOrigin.dot(sphereToRayOrigin) - (sphere.radius*sphere.radius);
-        scalar d;
-        {
-            double intermediate = (b*b) - (4*a*c);
-            if(intermediate < 0) {
-                continue; //No intersection
-            }
-            d = sqrt(intermediate);
-        }
-
-        double s1 = (-b + d)/(2*a);
-        double s2 = (-b - d)/(2*a);
-        double s = s1 < s2 ? s1 : s2; //select the closest point intersection
-        if(s < 0) { //ignore collisions in negative ray direction!
-            continue;
-        }
-            
-        //Work out the position of the collision relative to the camera's location
-        Vector3D collisionOffset = ray.direction * s;
-        if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
-            closestCollision.position = collisionOffset;
-            closestCollision.normal = ((sphere.position - collisionOffset) - ray.origin).normalise();
-            closestCollision.ambientFactor = sphere.ambientFactor;
-            closestCollision.diffuseFactor = sphere.diffuseFactor;
-            closestCollision.specularFactor = sphere.specularFactor;
-        }
+        //A variable to store where the ray hit the surfact of the sphere and details about it
+        spheres[i].calculateCollision(ray, &closestCollision);
     }
 
     //2.Check the planes
     for(std::size_t i = 0; i < numPlanes; i++) {
-        Plane &plane = planes[i];
-        Vector3D pDashed = plane.position - ray.origin;
-        scalar scalingFactor = pDashed.dot(pDashed)/ray.direction.dot(pDashed);
-        if(scalingFactor < 0) {
-            continue;
-        }
-        Vector3D collisionOffset = ray.direction * scalingFactor;
-        if(collisionOffset.square() < closestCollision.position.square()) { //Comparing magnitudes
-            closestCollision.position = collisionOffset;
-            closestCollision.normal = {0,0,0};
-            closestCollision.normal = (closestCollision.normal - plane.position).normalise();
-            closestCollision.ambientFactor = plane.ambientFactor;
-            closestCollision.diffuseFactor = plane.diffuseFactor;
-            closestCollision.specularFactor = plane.specularFactor;
-        }
+        planes[i].calculateCollision(ray, &closestCollision);
     }
 
     
@@ -361,7 +366,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     Sphere sphere0;
     sphere0.position = {300.0, 0, 0};
     sphere0.radius = 50.0;
-    sphere0.ambientFactor = {10,50,10};
+    sphere0.ambientFactor = {0,0,0};
     sphere0.diffuseFactor = {50, 50, 50};
     sphere0.specularFactor = {200, 200, 200};
     spheres[0] = sphere0;
@@ -387,9 +392,9 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
 
     Plane plane0;
     plane0.position = {0, -100, 0};
-    plane0.ambientFactor = {20, 20, 20};
-    plane0.diffuseFactor = {50, 50, 50};
-    plane0.specularFactor = {150, 150, 150};
+    plane0.ambientFactor = {10, 10, 10};
+    plane0.diffuseFactor = {100, 100, 100}; //TODO(Tom) This isn't working :( Plane diffuse not appearing
+    plane0.specularFactor = {100, 100, 100};
     planes[0] = plane0;
     
     PointLight lights[2];
@@ -430,7 +435,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
                                       sizeof(planes)/sizeof(planes[0]),
                                       lights,
                                       sizeof(lights)/sizeof(lights[0]),
-                                      1);
+                                      2);
             setPixel(backBuffer, x, y, pixelColor);
         }
     }
