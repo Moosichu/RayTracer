@@ -254,7 +254,7 @@ Color traceRay(Ray ray,
     LightCollision closestCollision;
     if(defaultClosestCollision == nullptr) {
         //This position is relative to the Ray origin. TODO(Tom): change its name to reflect that and ask
-        closestCollision.position = {600000.0, 60000.0, 60000.0}; //TODO(Tom) Replace with max possible scalar values
+        closestCollision.position = {SCALAR_MAX, SCALAR_MAX, SCALAR_MAX}; //TODO(Tom) Replace with max possible scalar values
         //don't care about normal in this case as not used with no light factors
         //TODO(Tom): add some safety
         closestCollision.ambientFactor = {0, 0, 0};

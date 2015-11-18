@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include <xinput.h>
+#include <float.h>
 
 //Make static's overloading based on usage clearer
 #define internal static         //Use on functions where static means that functions are only accessable in local translation unit
@@ -23,6 +24,7 @@ typedef int32_t int32;
 typedef int64_t int64;
 
 typedef double scalar;
+#define SCALAR_MAX DBL_MAX
 
 #include "ray_tracer.cpp"
 
