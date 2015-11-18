@@ -173,7 +173,7 @@ struct Sphere {
         Vector3D collisionOffset = ray.direction * s;
         if(collisionOffset.square() < closestCollision->position.square()) { //Comparing magnitudes
             closestCollision->position = collisionOffset;
-            closestCollision->normal = ((position - collisionOffset) - ray.origin).normalise();
+            closestCollision->normal = (ray.origin - (position - collisionOffset)).normalise();
             closestCollision->ambientFactor = ambientFactor;
             closestCollision->diffuseFactor = diffuseFactor;
             closestCollision->specularFactor = specularFactor;
@@ -196,8 +196,7 @@ struct Plane {
         Vector3D collisionOffset = ray.direction * scalingFactor;
         if(collisionOffset.square() < closestCollision->position.square()) { //Comparing magnitudes
             closestCollision->position = collisionOffset;
-            closestCollision->normal = {0,0,0};
-            closestCollision->normal = (closestCollision->normal - position).normalise();
+            closestCollision->normal  = (position * -1).normalise();
             closestCollision->ambientFactor = ambientFactor;
             closestCollision->diffuseFactor = diffuseFactor;
             closestCollision->specularFactor = specularFactor;
@@ -303,7 +302,7 @@ Color traceRay(Ray ray,
 
 
                 Vector3D normalRay = newRay.direction.normalise();
-                scalar diffusePower = -closestCollision.normal.dot(normalRay);
+                scalar diffusePower = closestCollision.normal.dot(normalRay);
                 if(diffusePower < 0) break; //throw away rays which go inside the object
 
                 Color diffuseResult = traceRay(
@@ -330,7 +329,9 @@ Color traceRay(Ray ray,
             closestCollision.specularFactor.blue) {
             Ray newRay;
             newRay.origin = closestCollision.position + ray.origin;
-            newRay.direction = ((closestCollision.normal * 2 * closestCollision.normal.dot(ray.direction)) + ray.direction) * -1;
+            newRay.direction = (
+                (closestCollision.normal * 2 * closestCollision.normal.dot(ray.direction)
+            ) + ray.direction) * -1;
             Color specularResult = traceRay(
                 newRay,
                 spheres, numSpheres,
