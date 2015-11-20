@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "color.hpp"
+
 struct OffscreenBuffer {
     BITMAPINFO info;
     void *memory;
@@ -10,46 +12,6 @@ struct OffscreenBuffer {
     int height;
     int pitch;
     int bytesPerPixel;
-};
-
-
-struct Color {
-    uint8 red;
-    uint8 green;
-    uint8 blue;
-    uint8 alpha;
-    
-    Color add(Color c) {
-        Color r;
-        r.red = addChannels(red, c.red);
-        r.green = addChannels(green, c.green);
-        r.blue = addChannels(blue, c.blue);
-        return r;
-    }
-
-    Color mask(Color c) {
-        Color r;
-        r.red = (uint8) (((double) red * c.red)/255);
-        r.green = (uint8) (((double) green * c.green)/255);
-        r.blue = (uint8) (((double) blue * c.blue)/255);
-        return r;
-    }
-
-private:
-    static uint8 addChannels(uint8 c1, uint8 c2) {
-      if((c1 | c2) == 255) {
-            c1 = 255;
-        } else {
-            uint8 newC = c1 + c2;
-            if(newC < (c1 | c2)) {
-                //Have overflow, max out red!
-                c1 = 255;
-            } else {
-                c1 = newC;
-            }
-        }
-        return c1;
-    }
 };
 
 //TODO(Tom) work out how to make these consts!
