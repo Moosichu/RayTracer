@@ -4,6 +4,8 @@
 #include <stdarg.h>
 
 #include "color.hpp"
+#include "vector3d.hpp"
+#include "vector2d.hpp"
 
 struct OffscreenBuffer {
     BITMAPINFO info;
@@ -14,76 +16,6 @@ struct OffscreenBuffer {
     int bytesPerPixel;
 };
 
-//TODO(Tom) work out how to make these consts!
-struct Vector3D {
-    scalar x;
-    scalar y;
-    scalar z;
-
-    Vector3D operator+(const Vector3D v) {
-        return {x + v.x, y + v.y, z + v.z};
-    }
-
-    Vector3D operator-(const Vector3D v) {
-        return {x - v.x, y - v.y, z - v.z};
-    }
-
-    Vector3D operator*(const scalar factor) {
-        return {factor * x, factor * y, factor * z};
-    }
-
-    Vector3D normalise() {
-        scalar mag = magnitude();
-        return {x/mag, y/mag, z/mag};
-    }
-
-    scalar dot(const Vector3D v) {
-        return (x * v.x) + (y * v.y) + (z * v.z);
-    }
-
-    scalar square() {
-        return dot(*this);
-    }
-
-    scalar magnitude() {
-        return sqrt(square());
-    }
-};
-
-
-struct Vector2D {
-    scalar x;
-    scalar y;
-
-    Vector2D operator+(const Vector2D v) {
-        return {x + v.x, y + v.y};
-    }
-
-    Vector2D operator-(const Vector2D v) {
-        return {x - v.x, y - v.y};
-    }
-
-    Vector2D operator*(const scalar factor) {
-        return {factor * x, factor * y};
-    }
-
-    Vector2D normalise() {
-        scalar mag = magnitude();
-        return {x/mag, y/mag};
-    }
-
-    scalar dot(const Vector2D v) {
-        return (x * v.x) + (y * v.y);
-    }
-
-    scalar square() {
-        return dot(*this);
-    }
-
-    scalar magnitude() {
-        return sqrt(square());
-    }
-};
 
 struct Ray {
     Vector3D direction;
@@ -363,7 +295,7 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     PointLight lights[2];
     PointLight light0;
     light0.position = {0.0, 255.0, 255.0};
-    light0.color = {255, 255, 255};
+    light0.color = {0, 0, 255};
     lights[0] = light0;
 
     PointLight light1;

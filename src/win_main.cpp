@@ -4,27 +4,13 @@
 
 //NOTE(moosichu): Thank you so so so so so so so much Casey Muratori for creating the handmade hero videos to help me learn all of this :)
 #include <windows.h>
-#include <stdint.h>
+#include "header.h"
 #include <xinput.h>
-#include <float.h>
 
 //Make static's overloading based on usage clearer
 #define internal static         //Use on functions where static means that functions are only accessable in local translation unit
 #define local_persist static    //Create alternate def for static, so usage is clear in context (and this type can be removed later)
 #define global_variable static  //Use on variables where static makes them global
-
-typedef uint8_t uint8;
-typedef uint16_t uint16;
-typedef uint32_t uint32;
-typedef uint64_t uint64;
-
-typedef int8_t int8;
-typedef int16_t int16;
-typedef int32_t int32;
-typedef int64_t int64;
-
-typedef double scalar;
-#define SCALAR_MAX DBL_MAX
 
 #include "ray_tracer.cpp"
 
