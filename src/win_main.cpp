@@ -249,9 +249,11 @@ void debugPrint(const char* szFormat, ...) {
  * Set the pixel in the buffer to the given colour!
  */
 void setPixel(OffscreenBuffer buffer, int x, int y, Color color) {
-    uint8 *row = (uint8 *) buffer.memory;
-    row += buffer.pitch * y;
-    uint32 *pixel = (uint32 *) row;
-    pixel += x;
-    *pixel = ((color.red << 16) | (color.green << 8) | color.blue);
+    if(x >= 0 && x < buffer.width && y >= 0 && y < buffer.height) {
+        uint8 *row = (uint8 *) buffer.memory;
+        row += buffer.pitch * y;
+        uint32 *pixel = (uint32 *) row;
+        pixel += x;
+        *pixel = ((color.red << 16) | (color.green << 8) | color.blue);
+    }
 }

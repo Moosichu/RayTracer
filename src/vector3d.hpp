@@ -3,6 +3,8 @@
 
 #include "header.h"
 
+#include <cmath>
+
 //TODO(Tom) work out how to make these consts!
 struct Vector3D {
     scalar x;

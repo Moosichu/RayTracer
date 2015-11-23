@@ -3,6 +3,13 @@
 #include "header.h"
 
 struct Color {
+    static const Color BLACK;
+    static const Color WHITE;
+    static const Color RED;
+    static const Color GREEN;
+    static const Color BLUE;
+    
+    
     uint8 red;
     uint8 green;
     uint8 blue;

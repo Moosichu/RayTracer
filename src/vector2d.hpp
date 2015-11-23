@@ -2,6 +2,7 @@
 #define VECTOR2D_H
 
 #include "header.h"
+#include <cmath>
 
 struct Vector2D {
     scalar x;
