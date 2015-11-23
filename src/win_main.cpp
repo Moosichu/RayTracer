@@ -15,7 +15,8 @@
 
 #include "header.h"
 
-#include "ray_tracer.hpp"
+//#include "ray_tracer.hpp"
+#include "line_drawer.hpp"
 
 //TODO(moosichu) Maybe handle this some other way
 
@@ -211,7 +212,8 @@ int WinMain(
                 }
 
                 //renderWeirdGradient(globalBackbuffer, xOffset, yOffset);
-                rayTracerMain(globalBackbuffer);
+                //rayTracerMain(globalBackbuffer);
+                lineDrawerMain(globalBackbuffer);
                 HDC deviceContext = GetDC(windowHandle);
                 RECT clientRect;
                 GetClientRect(windowHandle, &clientRect);
