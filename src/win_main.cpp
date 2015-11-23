@@ -4,15 +4,18 @@
 
 //NOTE(moosichu): Thank you so so so so so so so much Casey Muratori for creating the handmade hero videos to help me learn all of this :)
 #include <windows.h>
-#include "header.h"
 #include <xinput.h>
+
+#include <stdio.h>
 
 //Make static's overloading based on usage clearer
 #define internal static         //Use on functions where static means that functions are only accessable in local translation unit
 #define local_persist static    //Create alternate def for static, so usage is clear in context (and this type can be removed later)
 #define global_variable static  //Use on variables where static makes them global
 
-#include "ray_tracer.cpp"
+#include "header.h"
+
+#include "ray_tracer.hpp"
 
 //TODO(moosichu) Maybe handle this some other way
 
@@ -227,4 +230,26 @@ int WinMain(
         //TODO(moosichu)  Log this error
     }
     return(0);
+}
+
+void debugPrint(const char* szFormat, ...) {
+    char szBuff[1024];
+    va_list arg;
+    va_start(arg, szFormat);
+    _vsnprintf(szBuff, sizeof(szBuff), szFormat, arg);
+    va_end(arg);
+
+    OutputDebugString(szBuff);
+
+}
+
+/*
+ * Set the pixel in the buffer to the given colour!
+ */
+void setPixel(OffscreenBuffer buffer, int x, int y, Color color) {
+    uint8 *row = (uint8 *) buffer.memory;
+    row += buffer.pitch * y;
+    uint32 *pixel = (uint32 *) row;
+    pixel += x;
+    *pixel = ((color.red << 16) | (color.green << 8) | color.blue);
 }

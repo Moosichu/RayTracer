@@ -3,19 +3,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#include "header.h"
+#include "os_layer.h"
+
 #include "color.hpp"
 #include "vector3d.hpp"
 #include "vector2d.hpp"
-
-struct OffscreenBuffer {
-    BITMAPINFO info;
-    void *memory;
-    int width;
-    int height;
-    int pitch;
-    int bytesPerPixel;
-};
-
+#include "ray_tracer.hpp"
 
 struct Ray {
     Vector3D direction;
@@ -112,28 +106,6 @@ struct Screen {
     Vector3D yDirection;
     Vector3D xDirection;
 };
-
-/*
- * Set the pixel in the buffer to the given colour!
- */
-static void setPixel(OffscreenBuffer buffer, int x, int y, Color color) {
-    uint8 *row = (uint8 *) buffer.memory;
-    row += buffer.pitch * y;
-    uint32 *pixel = (uint32 *) row;
-    pixel += x;
-    *pixel = ((color.red << 16) | (color.green << 8) | color.blue);
-}
-
-void debugPrint(const char* szFormat, ...) {
-    char szBuff[1024];
-    va_list arg;
-    va_start(arg, szFormat);
-    _vsnprintf(szBuff, sizeof(szBuff), szFormat, arg);
-    va_end(arg);
-
-    OutputDebugString(szBuff);
-
-}
 
 //TODO(Tom) Have ray return some other non-integer logarithmic light unit that is better
 //suited for these simulations.
