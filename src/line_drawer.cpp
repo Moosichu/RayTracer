@@ -10,6 +10,8 @@ struct Line {
     Vector2D point_1;
 };
 
+
+//Draw a line
 static void drawLine(Line line, OffscreenBuffer backBuffer) {
     scalar x0, y0, x1, y1;
     x0 = line.point_0.x;
@@ -35,7 +37,7 @@ static void drawLine(Line line, OffscreenBuffer backBuffer) {
     scalar yi = y0 + m * (x - x0);
     int64 y = round(yi);
     scalar yf = yi - y;
-    while(x <= round(x1)) {
+    while((x*xdir) <= (round(x1)*xdir)) {
         setPixel(backBuffer, x, y, Color::BLACK);
         x = x + xdir;
         yf = yf + m;
@@ -48,24 +50,27 @@ static void drawLine(Line line, OffscreenBuffer backBuffer) {
 
 void lineDrawerMain(OffscreenBuffer backBuffer) {
     Line line1;
-    line1.point_0 = {0.0, 0.0};
-    line1.point_1 = {100000.0, 1000000.0};
+    line1.point_0 = {100.0, 100.0};
+    line1.point_1 = {1000.0, 1000.0};
 
+    //TODO(Tom) Handle vertical lines
     Line line2;
-    line2.point_0 = {0.0, 250.0};
-    line2.point_1 = {250.0, 250.0};
+    line2.point_0 = {250.0, 0};
+    line2.point_1 = {300.0, 250.0};
     
+    Line line3;
+    line3.point_0 = {256.0, 256.0};
+    line3.point_1 = {256.0, 0};
+
+    //Clear the buffer to white
     for(std::size_t x = 0; x < backBuffer.width; x++) {
         for(std::size_t y = 0; y < backBuffer.height; y++) {
-            //Color color = {
-            //    (uint8) x,
-            //    (uint8) y,
-            //   (uint8) (x + y)};
             Color color = {255, 255, 255, 255};
             setPixel(backBuffer, x, y, color);
         }
     }
     drawLine(line1, backBuffer);
     drawLine(line2, backBuffer);
+    drawLine(line3, backBuffer);
 }
 
