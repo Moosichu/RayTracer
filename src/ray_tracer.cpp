@@ -211,15 +211,25 @@ Color traceRay(Ray ray,
     return finalColor;
 }
 
-void rayTracerMain(OffscreenBuffer backBuffer) {
-    //TODO(Tom): Allocate all this stuff onto the heap!
-    Camera camera;
-    camera.position = {0, 0, 0};
+Camera* cameraptr;
+
+Screen* screenptr;
+
+Sphere* spheres;
+
+void rayTracerInitialise(OffscreenBuffer backBuffer) {
+    cameraptr = new Camera;
+    screenptr = new Screen;
+    spheres = new Sphere[3];
+
+    Camera& camera = *cameraptr;
+    Screen& screen = *screenptr;
 
     scalar screenAbsoluteHeight = 180.0;
     scalar screenAbsoluteWidth = 320.0;
-    
-    Screen screen;
+
+    camera.position = {0, 0, 0};
+
     screen.width = backBuffer.width;
     screen.height = backBuffer.height;
     screen.pixelWidth = screenAbsoluteWidth / screen.width;
@@ -227,7 +237,13 @@ void rayTracerMain(OffscreenBuffer backBuffer) {
     screen.position = {200.0, 0, 0};
     screen.yDirection = {0, 1, 0}; //TODO(Tom) Encode Pixel width and height in here in a neat way
     screen.xDirection = {0, 0, 1};
+}
 
+void rayTracerMain(OffscreenBuffer backBuffer) {
+    Camera& camera = *cameraptr;
+    Screen& screen = *screenptr;
+
+       
     Sphere spheres[3];
     
     Sphere sphere0;

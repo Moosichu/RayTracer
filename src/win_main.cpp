@@ -15,7 +15,7 @@
 
 #include "header.h"
 
-//#include "ray_tracer.hpp"
+#include "ray_tracer.hpp"
 #include "line_drawer.hpp"
 
 //TODO(moosichu) Maybe handle this some other way
@@ -192,6 +192,9 @@ int WinMain(
 
                                            );
         if(windowHandle) {  //Make sure it's not NULL
+            //Let rayTracer initialise
+            //rayTracerInitialise(globalBackbuffer);
+
             
             //Loop through mesages that have been sent to our window
             int xOffset = 0;
