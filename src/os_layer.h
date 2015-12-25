@@ -1,9 +1,11 @@
 #ifndef OS_LAYER_H
 #define OS_LAYER_H
 
-//TODO(Tom) REMOVE THIS DEPENDENCY FOR THIS DATA STRUCTURE!!!!!
-#include <windows.h>
 #include "color.hpp"
+
+//TODO(Tom) REMOVE THIS DEPENDENCY FOR THIS DATA STRUCTURE!!!!!
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+#include <windows.h>
 
 struct OffscreenBuffer {
     BITMAPINFO info;
@@ -13,6 +15,16 @@ struct OffscreenBuffer {
     int pitch;
     int bytesPerPixel;
 };
+#else
+
+struct OffscreenBuffer {
+    int width;
+    int height;
+    int pitch;
+    int bytesPerPixel;
+};
+
+#endif
 
 
 /*
