@@ -15,7 +15,8 @@ struct OffscreenBuffer {
     int pitch;
     int bytesPerPixel;
 };
-#else
+
+#else //TODO: work out emscripten macro
 
 struct OffscreenBuffer {
     int width;
@@ -32,6 +33,6 @@ struct OffscreenBuffer {
  */
 void setPixel(OffscreenBuffer buffer, int x, int y, Color color);
 
-void debugPrint(const char* szFormat, ...);
+void debugPrint(const char* szFormat, ...); //TODO: create a wrappable version!!!
 
 #endif
