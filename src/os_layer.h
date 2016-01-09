@@ -16,7 +16,21 @@ struct OffscreenBuffer {
     int bytesPerPixel;
 };
 
-#else //TODO: work out emscripten macro
+#elif defined(__EMSCRIPTEN__)
+
+#include <SDL/SDL.h>
+#include <emscripten.h>
+
+struct OffscreenBuffer {
+    int width;
+    int height;
+    int pitch;
+    int bytesPerPixel;
+    SDL_Surface *screen; 
+};
+
+
+#else  //TODO: work out emscripten macro
 
 struct OffscreenBuffer {
     int width;
