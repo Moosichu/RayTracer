@@ -35,9 +35,10 @@ int main() {
 
     if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_LockSurface(globalBackbuffer.screen);
     //for(;;) {
-    //  rayTracerMain(globalBackbuffer);
+        //rayTracerMain(globalBackbuffer);
+        lineDrawerMain(globalBackbuffer);
     //}
-    for (int i = 0; i < 256; i++) {
+    /*for (int i = 0; i < 256; i++) {
       for (int j = 0; j < 256; j++) {
         #ifdef TEST_SDL_LOCK_OPTS
         // Alpha behaves like in the browser, so write proper opaque pixels.
@@ -54,11 +55,11 @@ int main() {
         color.alpha = alpha;
         setPixel(globalBackbuffer, i, j, color);
       }
-    }
+    }*/
     if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_UnlockSurface(globalBackbuffer.screen);
     SDL_Flip(globalBackbuffer.screen); 
     SDL_Quit();
-
+    printf("Finish!!!!");
     return 0;
 
 }
