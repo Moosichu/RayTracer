@@ -24,7 +24,6 @@ struct OffscreenBuffer {
 struct OffscreenBuffer {
     int width;
     int height;
-    int pitch;
     int bytesPerPixel;
     SDL_Surface *screen; 
 };
