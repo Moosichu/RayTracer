@@ -14,16 +14,17 @@ void debugPrint(const char* szFormat, ...) {
 }
 
 void setPixel(OffscreenBuffer buffer, int x, int y, Color color) {
-    //TODO: work out meaning of 256!
-    *((Uint32*)buffer.screen->pixels + x * 256 + y) = SDL_MapRGBA(buffer.screen->format, color.red, color.green, color.blue, color.alpha);
+    Uint8 * pixel = (Uint8*)buffer.screen->pixels;
+    pixel += (y * buffer.screen->pitch) + (x * sizeof(Uint32));
+    *((Uint32*)pixel) = SDL_MapRGBA(buffer.screen->format, color.red, color.green, color.blue, color.alpha);
 }
 
 int main() {
     printf("hello, world!\n");
     
     OffscreenBuffer globalBackbuffer;
-    globalBackbuffer.width = 256;
-    globalBackbuffer.height = 256;
+    globalBackbuffer.width = 1052;
+    globalBackbuffer.height = 526;
     globalBackbuffer.bytesPerPixel = 32;
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -36,10 +37,10 @@ int main() {
     if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_LockSurface(globalBackbuffer.screen);
     //for(;;) {
         //rayTracerMain(globalBackbuffer);
-        lineDrawerMain(globalBackbuffer);
+        //lineDrawerMain(globalBackbuffer);
     //}
-    /*for (int i = 0; i < 256; i++) {
-      for (int j = 0; j < 256; j++) {
+    for (int i = 0; i < globalBackbuffer.width; i++) {
+      for (int j = 0; j < globalBackbuffer.height; j++) {
         #ifdef TEST_SDL_LOCK_OPTS
         // Alpha behaves like in the browser, so write proper opaque pixels.
         int alpha = 255;
@@ -55,7 +56,7 @@ int main() {
         color.alpha = alpha;
         setPixel(globalBackbuffer, i, j, color);
       }
-    }*/
+    }
     if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_UnlockSurface(globalBackbuffer.screen);
     SDL_Flip(globalBackbuffer.screen); 
     SDL_Quit();
