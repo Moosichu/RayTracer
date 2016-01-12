@@ -4,4 +4,6 @@ misc/emacs-23.4
 *.obj
 bin
 
+*~
+
 RayTracer/x64
