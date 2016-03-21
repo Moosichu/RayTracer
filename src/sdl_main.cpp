@@ -30,27 +30,7 @@ int main() {
     globalBackbuffer.height = 526;
     globalBackbuffer.bytesPerPixel = 32;
 
-    /*
-    SDL_Init(SDL_INIT_VIDEO);
-    globalBackbuffer.screen = SDL_SetVideoMode(globalBackbuffer.width , globalBackbuffer.height, globalBackbuffer.bytesPerPixel, SDL_SWSURFACE);
-
-    #ifdef TEST_SDL_LOCK_OPTS
-    EM_ASM("SDL.defaults.copyOnLock = false; SDL.defaults.discardOnLock = true; SDL.defaults.opaqueFrontBuffer = false;");
-    #endif
-
-
-    rayTracerInitialise(globalBackbuffer);
-    if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_LockSurface(globalBackbuffer.screen);
-
-    rayTracerMain(globalBackbuffer);
-    //lineDrawerMain(globalBackbuffer);
-
-    if (SDL_MUSTLOCK(globalBackbuffer.screen)) SDL_UnlockSurface(globalBackbuffer.screen);
-    SDL_Flip(globalBackbuffer.screen);
-    SDL_Quit();
-    printf("Finish!!!!");
-    return 0; */
-
+    printf("Starting\n");
     //The window that is being rendered to
     SDL_Window* window = NULL;
 
@@ -85,7 +65,7 @@ int main() {
 
     SDL_DestroyWindow(window);
     SDL_Quit();
-
+    printf("Finished\n");
     return 0;
 
 }
