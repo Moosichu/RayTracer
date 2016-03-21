@@ -31,11 +31,13 @@ struct OffscreenBuffer {
 
 #else  //TODO: work out emscripten macro
 
+#include <SDL2/SDL.h>
+
 struct OffscreenBuffer {
     int width;
     int height;
-    int pitch;
     int bytesPerPixel;
+    SDL_Surface *screen;
 };
 
 #endif
