@@ -18,14 +18,14 @@ struct OffscreenBuffer {
 
 #elif defined(__EMSCRIPTEN__)
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <emscripten.h>
 
 struct OffscreenBuffer {
     int width;
     int height;
     int bytesPerPixel;
-    SDL_Surface *screen; 
+    SDL_Surface *screen;
 };
 
 

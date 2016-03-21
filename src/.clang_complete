@@ -1,0 +1,2 @@
+-D__EMSCRIPTEN__
+-I/usr/include/SLD2/
